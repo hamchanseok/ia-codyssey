@@ -1,3 +1,4 @@
+import struct
 def read_csv_file(filename):
     try:
         with open(filename, 'r', encoding='UTF-8') as file:
@@ -23,24 +24,29 @@ def sort_by_flammability(data):
         return data
 
 
-def save_to_binary_file(data, filename):
+def save_true_binary_file(data, filename):
     try:
         with open(filename, 'wb') as f:
-            for row in data:
+            for row in data[1:]:  # skip header
                 for item in row:
-                    f.write(item.encode())
-                    f.write(b' ')
-                f.write(b'\n')
+                    try:
+                        value = float(item)
+                        f.write(struct.pack('f', value))  # 숫자: 4바이트 float
+                    except ValueError:
+                        encoded = item.encode('utf-8')
+                        length = len(encoded)
+                        f.write(struct.pack('H', length))  # 길이: 2바이트
+                        f.write(encoded)
+        print(f'✅ 이진 파일 저장 완료: {filename}')
     except Exception as e:
         print('이진 파일 저장 오류:', e)
-
 
 def read_binary_file(filename):
     print('----인화성 정렬 이진파일 출력----')
     try:
         with open(filename, 'rb') as f:
-            for line in f.readlines():
-                print(line)
+            hex_data = f.read()
+            print(hex_data)
     except Exception as e:
         print('이진 파일 읽기 오류:', e)
 
@@ -91,7 +97,7 @@ def main():
     sorted_data = sort_by_flammability(data)
 
     # 3. 정렬된 데이터를 이진 파일로 저장
-    save_to_binary_file(sorted_data, bin_filename)
+    save_true_binary_file(sorted_data, bin_filename)
 
     # 4. 이진 파일 내용 출력
     read_binary_file(bin_filename)
