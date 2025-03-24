@@ -76,8 +76,6 @@ def print_table(data):
 
 
 def main():
-    print('\n<<<<문제3>>>>')
-
     base_path = 'codyssey02/'
 
     csv_filename = base_path + 'Mars_Base_Inventory_List.csv'
