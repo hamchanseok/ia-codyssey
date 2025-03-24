@@ -37,7 +37,7 @@ def save_true_binary_file(data, filename):
                         length = len(encoded)
                         f.write(struct.pack('H', length))  # 길이: 2바이트
                         f.write(encoded)
-        print(f'✅ 이진 파일 저장 완료: {filename}')
+        print(f'이진 파일 저장 완료: {filename}')
     except Exception as e:
         print('이진 파일 저장 오류:', e)
 
