@@ -1,11 +1,9 @@
-import time
-import json
-import threading
-import random
-import sys
+import time        
+import threading    
+import random       
 
 class DummySensor:
-    
+
     def __init__(self):
         self.env_values = {
             "mars_base_internal_temperature": None,
@@ -15,7 +13,7 @@ class DummySensor:
             "mars_base_internal_co2": None,
             "mars_base_internal_oxygen": None
         }
-        
+
     def set_env(self):
         self.env_values["mars_base_internal_temperature"] = random.uniform(18, 30)
         self.env_values["mars_base_external_temperature"] = random.uniform(0, 21)
@@ -27,8 +25,21 @@ class DummySensor:
     def get_env(self):
         return self.env_values
 
+def dict_to_json_like_string(d):
+    json_like = "{\n"
+    count = len(d)
+    for i, (key, value) in enumerate(d.items()):
+        if isinstance(value, str):
+            val_str = f'"{value}"'
+        else:
+            val_str = f"{value:.4f}"
+        comma = "," if i < count - 1 else ""
+        json_like += f'  "{key}": {val_str}{comma}\n'
+    json_like += "}"
+    return json_like
+
 class MissionComputer:
-    
+
     def __init__(self):
         self.ds = DummySensor()
         self.env_values = {}
@@ -36,31 +47,27 @@ class MissionComputer:
         self.accumulated_data = {key: [] for key in self.ds.env_values.keys()}
 
     def get_sensor_data(self):
-        count = 0
         last_five_minute = time.time()
         try:
             while self.running:
                 self.ds.set_env()
                 self.env_values = self.ds.get_env()
 
-                # 5분 누적 데이터 저장
                 for key, value in self.env_values.items():
                     self.accumulated_data[key].append(value)
 
-                print(json.dumps(self.env_values, indent=2))
+                print(dict_to_json_like_string(self.env_values))
                 print("-" * 30)
 
-                count += 1
                 time.sleep(5)
 
-                # 5분(60회) 마다 평균 출력
                 if time.time() - last_five_minute >= 300:
                     print("=== 5분 평균 환경 데이터 ===")
                     avg_data = {
                         key: sum(values) / len(values)
                         for key, values in self.accumulated_data.items()
                     }
-                    print(json.dumps(avg_data, indent=2))
+                    print(dict_to_json_like_string(avg_data))
                     print("=" * 30)
                     self.accumulated_data = {key: [] for key in self.env_values.keys()}
                     last_five_minute = time.time()
@@ -78,11 +85,7 @@ def listen_for_stop(mission_computer):
 
 if __name__ == "__main__":
     RunComputer = MissionComputer()
-
-    # 스레드로 키 입력 감지
     stop_thread = threading.Thread(target=listen_for_stop, args=(RunComputer,))
     stop_thread.daemon = True
     stop_thread.start()
-
     RunComputer.get_sensor_data()
-    
