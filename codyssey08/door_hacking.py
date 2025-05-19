@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # import zipfile
 # import time
 # import os
