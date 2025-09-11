@@ -1,6 +1,5 @@
 #pip install SpeechRecognition
 
-
 import os
 import datetime
 import wave
@@ -63,31 +62,31 @@ class VoiceRecorder:
 
 
 class STTProcessor:
-    def __init__(self, records_dir, chunk_length=5):
+    def __init__(self, records_dir, chunk_length=5): #음성 파일 경로와 청크 길이(초)를 속성으로 저장
         self.records_dir = records_dir
         self.chunk_length = chunk_length
-        self.recognizer = sr.Recognizer()
+        self.recognizer = sr.Recognizer() # 음성 인식을 위해 Recognizer 객체 생성
 
     def transcribe(self, file_name):
         file_path = os.path.join(self.records_dir, file_name)
         results = []
 
-        # WAV 파일 열어서 전체 길이 계산
+        # WAV 파일 열어서 전체 재생 시간 계산
         with wave.open(file_path, 'rb') as wf:
             frame_rate = wf.getframerate()
             n_frames = wf.getnframes()
             duration = n_frames / frame_rate
 
-        offset = 0.0
+        offset = 0.0 ## offset부터 청크 길이만큼씩 반복해 인식 수행
         while offset < duration:
-            with sr.AudioFile(file_path) as source:
+            with sr.AudioFile(file_path) as source:  # Recognizer.record로 offset부터 duration 초 만큼 읽어옴
                 audio = self.recognizer.record(
                     source,
                     offset=offset,
                     duration=self.chunk_length
                 )
             try:
-                text = self.recognizer.recognize_google(
+                text = self.recognizer.recognize_google( # Google STT API를 통해 한국어로 인식
                     audio, language='ko-KR'
                 )
             except sr.UnknownValueError:
@@ -96,7 +95,7 @@ class STTProcessor:
                 print(f'STT 서비스 오류: {e}')
                 text = ''
 
-            time_str = str(datetime.timedelta(seconds=int(offset)))
+            time_str = str(datetime.timedelta(seconds=int(offset)))   # offset을 초 단위 시:분:초 문자열로 변환
             results.append((time_str, text))
             offset += self.chunk_length
 
@@ -142,7 +141,7 @@ class STTProcessor:
             print('해당 키워드를 찾을 수 없습니다.')
 
     def list_audio_files(self):
-        # STTProcessor 내부에서 사용되는 list
+        # STTProcessor 내부에서 사용되는 list (TTProcessor 내부에서 WAV 파일 목록을 가져옴)
         return [f for f in os.listdir(self.records_dir)
                 if f.lower().endswith('.wav')]
 
