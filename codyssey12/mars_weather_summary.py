@@ -33,7 +33,7 @@ class MySQLHelper:
 
     def fetch_all_data(self):
         self.cursor.execute('SELECT mars_date, temp FROM mars_weather')
-        return self.cursor.fetchall()
+        return self.cursor.fetchall() #fetchall : 레코드를 배열형식으로 저장
 
     def close(self):
         self.cursor.close()
@@ -43,7 +43,7 @@ class MySQLHelper:
 def read_csv_and_insert(helper, csv_path):
     with open(csv_path, 'r', encoding='utf-8') as file:
         reader = csv.reader(file)
-        next(reader)  # Skip header
+        next(reader) 
         for row in reader:
             mars_date = datetime.strptime(row[1], '%Y-%m-%d')
             temp = int(float(row[2]))  # 예: 21.4 → 21
