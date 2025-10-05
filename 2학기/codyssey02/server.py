@@ -12,7 +12,7 @@ HOST = ''          # 모든 인터페이스 바인딩
 PORT = 8080        # 요구사항: 8080 포트
 
 
-def ensure_index_html() -> None:
+def ensure_index_html() -> None: 
     """index.html 파일이 없으면 기본 파일을 생성한다."""
     if os.path.exists(INDEX_FILE):
         return
@@ -76,10 +76,10 @@ def lookup_geo(ip: str) -> str:
     보너스: 공개 API(ip-api.com)로 대략적인 위치를 조회한다.
     표준 라이브러리(urllib)만 사용. 실패하거나 사설 IP면 'N/A' 반환.
     """
-    if not ip or is_private_ip(ip):
+    if not ip or is_private_ip(ip): # ip가 없거나 사설/로컬 IP면 위치 조회를 하지 않음.
         return 'N/A'
 
-    url = f'http://ip-api.com/json/{ip}?fields=status,country,regionName,city,query'
+    url = f'http://ip-api.com/json/{ip}?fields=status,country,regionName,city,query' # ip-api.com에서 필요한 필드만 요청
     try:
         with urlopen(url, timeout=3) as resp:
             data = resp.read().decode('utf-8', errors='ignore')
@@ -141,11 +141,6 @@ class SpacePirateHandler(SimpleHTTPRequestHandler):
         기본 접근 로그(127.0.0.1 - - ... "GET / ... 200 -")는
         과도할 수 있어 조용히 한다. 필요 시 주석 해제해서 사용.
         """
-        # sys.stderr.write('%s - - [%s] %s\n' % (
-        #     self.client_address[0],
-        #     self.log_date_time_string(),
-        #     format % args
-        # ))
         return
 
 
